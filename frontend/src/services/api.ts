@@ -4,6 +4,7 @@ import type {
   Vital,
   News2Assessment,
   DeteriorationAlert,
+  QualityWatchdogResponse,
 } from "../types";
 
 export const API = "http://127.0.0.1:8000";
@@ -49,13 +50,17 @@ export const alertService = {
   list: async () =>
     (await api.get<DeteriorationAlert[]>("/alerts")).data,
 
-  acknowledge: async (id: number, note?: string) =>
-    (
-      await api.post(`/alerts/${id}/acknowledge`, {
-        actor: "nurse_demo",
-        note: note ?? "Acknowledged from WRDW dashboard",
-      })
-    ).data,
+  acknowledge: async (
+  id: number,
+  actor: string,
+  note?: string
+) =>
+  (
+    await api.post(`/alerts/${id}/acknowledge`, {
+      actor,
+      note: note ?? null,
+    })
+  ).data,
 
   audit: async (id: number) =>
     (await api.get(`/alerts/${id}/audit`)).data,
@@ -64,4 +69,8 @@ export const alertService = {
 export const simulationService = {
   run: async () =>
     (await api.post("/test/simulate-waiting-room")).data,
+};
+export const qualityService = {
+  watchdog: async () =>
+    (await api.get<QualityWatchdogResponse>("/quality/watchdog")).data,
 };

@@ -2071,3 +2071,181 @@ h1 {
     flex-direction: column;
   }
 }
+
+/* Data Quality Watchdog */
+
+.data-quality-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dq-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.dq-summary-card {
+  padding: 18px;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.dq-summary-card span {
+  display: block;
+  color: #788797;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.dq-summary-card strong {
+  display: block;
+  margin-top: 10px;
+  color: #243b4b;
+  font: 800 27px "Manrope", sans-serif;
+}
+
+.dq-summary-card.warning {
+  border-left: 4px solid #d9a441;
+}
+
+.dq-summary-card.danger {
+  border-left: 4px solid #d65c5c;
+}
+
+.dq-summary-card.neutral {
+  border-left: 4px solid #8295a8;
+}
+
+.dq-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.dq-filter-row input,
+.dq-filter-row select {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #dce4eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #344b5c;
+  font: inherit;
+  font-size: 12px;
+}
+
+.dq-filter-row input {
+  flex: 1;
+  min-width: 220px;
+}
+
+.dq-filter-row select {
+  min-width: 190px;
+}
+
+.dq-patient-card {
+  padding: 19px;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.dq-patient-card + .dq-patient-card {
+  margin-top: 13px;
+}
+
+.dq-patient-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.dq-patient-heading h3 {
+  margin: 6px 0 0;
+  color: #243b4b;
+  font-size: 16px;
+}
+
+.dq-patient-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dq-patient-meta > div {
+  padding: 12px;
+  border-radius: 9px;
+  background: #f6f8fa;
+  min-width: 0;
+}
+
+.dq-patient-meta span {
+  display: block;
+  margin-bottom: 6px;
+  color: #788797;
+  font-size: 10px;
+}
+
+.dq-patient-meta strong {
+  color: #344b5c;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.dq-issues {
+  margin-top: 14px;
+  padding: 13px 15px;
+  border-radius: 9px;
+  background: #fff8e9;
+  color: #72591d;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.dq-issues ul {
+  margin-bottom: 0;
+  padding-left: 19px;
+}
+
+.dq-issues li {
+  margin-top: 5px;
+}
+
+.dq-no-issues {
+  background: #eaf7f1;
+  color: #176b4b;
+}
+
+@media (max-width: 1050px) {
+  .dq-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .dq-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dq-patient-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .dq-filter-row {
+    flex-direction: column;
+  }
+
+  .dq-filter-row input,
+  .dq-filter-row select {
+    width: 100%;
+    min-width: 0;
+  }
+}

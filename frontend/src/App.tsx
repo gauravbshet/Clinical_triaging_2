@@ -7,7 +7,8 @@ import PatientDetailsPage from "./pages/PatientDetailsPage";
 import ObservationsPage from "./pages/ObservationsPage";
 import AlertsPage from "./pages/AlertsPage";
 import SimulationPage from "./pages/SimulationPage";
-
+import PatientTimelinePage from "./pages/PatientTimelinePage";
+import DataQualityPage from "./pages/DataQualityPage";
 import "./App.css";
 
 export default function App() {
@@ -21,6 +22,8 @@ export default function App() {
           <Route path="/observations" element={<ObservationsPage />} />
           <Route path="/alerts" element={<AlertsPage />} />
           <Route path="/simulation" element={<SimulationPage />} />
+          <Route path="/timeline" element={<PatientTimelinePage />} />
+          <Route path="/data-quality" element={<DataQualityPage />} />
         </Routes>
       </PageLayout>
     </BrowserRouter>

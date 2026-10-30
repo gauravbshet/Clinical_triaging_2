@@ -46,6 +46,15 @@ export interface AlertReason {
   change: number;
   reason: string;
 }
+export interface AlertReading {
+  id: number;
+  heart_rate: number | null;
+  spo2: number | null;
+  respiratory_rate: number | null;
+  systolic_bp: number | null;
+  temperature: number | null;
+  recorded_at: string;
+}
 
 export interface DeteriorationAlert {
   id: number;
@@ -58,4 +67,28 @@ export interface DeteriorationAlert {
   created_at: string;
   acknowledged_at: string | null;
   acknowledged_by: string | null;
+  previous_reading: AlertReading | null;
+latest_reading: AlertReading | null;
+}
+export interface QualityIssue {
+  type: string;
+  message: string;
+  parameters?: string[];
+}
+
+export interface QualityPatient {
+  patient_id: number;
+  patient_code: string;
+  latest_reading_at: string | null;
+  reading_age_minutes: number | null;
+  freshness_status: string;
+  quality_status: string;
+  missing_parameters: string[];
+  issues: QualityIssue[];
+}
+
+export interface QualityWatchdogResponse {
+  total_patients: number;
+  patients_with_issues: number;
+  patients: QualityPatient[];
 }

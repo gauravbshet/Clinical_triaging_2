@@ -24,6 +24,10 @@ const pageInfo: Record<string, { title: string; subtitle: string }> = {
     title: "Research & Simulation",
     subtitle: "Explore synthetic waiting-room scenarios",
   },
+  "/data-quality": {
+  title: "Data Quality Watchdog",
+  subtitle: "Monitor observation freshness, completeness and data integrity",
+},
 };
 
 export default function PageLayout({

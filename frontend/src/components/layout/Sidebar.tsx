@@ -5,6 +5,7 @@ const links = [
   { to: "/patients", label: "Patient Queue", icon: "♙" },
   { to: "/observations", label: "Observations", icon: "♡" },
   { to: "/alerts", label: "Alert Centre", icon: "⚠" },
+  { to: "/data-quality", label: "Data Quality Watchdog", icon: "◉" },
   { to: "/simulation", label: "Research & Simulation", icon: "⌁" },
 ];
 

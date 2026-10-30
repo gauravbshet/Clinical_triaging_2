@@ -73,7 +73,7 @@ export default function AlertsPage() {
     setError("");
 
     try {
-      await alertService.acknowledge(alert.id, note.trim() || undefined);
+      await alertService.acknowledge(alert.id,actorName,note.trim() || undefined);
       await loadAlerts();
       if (selectedAlert?.id === alert.id) {
         setSelectedAlert({

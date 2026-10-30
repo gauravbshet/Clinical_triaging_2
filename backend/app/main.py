@@ -434,21 +434,51 @@ def list_alerts(db: Session = Depends(get_db)):
         .all()
     )
 
-    return [
-        {
+    results = []
+
+    for alert in alerts:
+        previous = (
+            db.get(VitalReading, alert.previous_reading_id)
+            if alert.previous_reading_id
+            else None
+        )
+
+        latest = (
+            db.get(VitalReading, alert.latest_reading_id)
+            if alert.latest_reading_id
+            else None
+        )
+
+        def reading_details(reading):
+            if reading is None:
+                return None
+
+            return {
+                "id": reading.id,
+                "heart_rate": reading.heart_rate,
+                "spo2": reading.spo2,
+                "respiratory_rate": reading.respiratory_rate,
+                "systolic_bp": reading.systolic_bp,
+                "temperature": reading.temperature,
+                "recorded_at": reading.recorded_at,
+            }
+
+        results.append({
             "id": alert.id,
             "patient_id": alert.patient_id,
             "previous_reading_id": alert.previous_reading_id,
             "latest_reading_id": alert.latest_reading_id,
+            "previous_reading": reading_details(previous),
+            "latest_reading": reading_details(latest),
             "status": alert.status,
             "message": alert.message,
             "reasons": alert.reasons,
             "created_at": alert.created_at,
             "acknowledged_at": alert.acknowledged_at,
             "acknowledged_by": alert.acknowledged_by,
-        }
-        for alert in alerts
-    ]
+        })
+
+    return results
 
 @app.post("/alerts/{alert_id}/acknowledge")
 def acknowledge_alert(
@@ -805,6 +835,121 @@ def run_research_evaluation(news2_threshold: int = 5):
         raise HTTPException(
             status_code=422, detail=str(exc)
         ) from exc
+
+@app.get("/quality/watchdog")
+def quality_watchdog(db: Session = Depends(get_db)):
+    patients = db.query(Patient).order_by(Patient.id).all()
+
+    results = []
+
+    for patient in patients:
+        issues = []
+
+        latest = (
+            db.query(VitalReading)
+            .filter(VitalReading.patient_id == patient.id)
+            .order_by(
+                VitalReading.recorded_at.desc(),
+                VitalReading.id.desc(),
+            )
+            .first()
+        )
+
+        # Include patients who have no vital readings.
+        if latest is None:
+            results.append({
+                "patient_id": patient.id,
+                "patient_code": patient.patient_code,
+                "latest_reading_at": None,
+                "reading_age_minutes": None,
+                "freshness_status": "unknown",
+                "quality_status": "no_readings",
+                "missing_parameters": [],
+                "issues": [
+                    {
+                        "type": "no_readings",
+                        "message": "No vital-sign readings have been recorded.",
+                    }
+                ],
+            })
+            continue
+
+        # Check whether the latest reading is recent or stale.
+        timestamp_info = timestamp_status(latest.recorded_at)
+
+        if timestamp_info["freshness_status"] == "stale":
+            issues.append({
+                "type": "stale_reading",
+                "message": (
+                    "The latest reading is older than the "
+                    "configured 60-minute freshness limit."
+                ),
+            })
+
+        elif timestamp_info["freshness_status"] == "invalid_future_timestamp":
+            issues.append({
+                "type": "invalid_timestamp",
+                "message": (
+                    "The latest reading is timestamped too far "
+                    "in the future."
+                ),
+            })
+
+        # Reuse the existing NEWS2 validation logic.
+        vitals = {
+            "heart_rate": latest.heart_rate,
+            "spo2": latest.spo2,
+            "respiratory_rate": latest.respiratory_rate,
+            "systolic_bp": latest.systolic_bp,
+            "temperature": latest.temperature,
+            "consciousness": latest.consciousness,
+            "supplemental_oxygen": latest.supplemental_oxygen,
+        }
+
+        missing_parameters = []
+
+        try:
+            assessment = calculate_news2(vitals)
+            missing_parameters = assessment["missing_parameters"]
+
+            if missing_parameters:
+                issues.append({
+                    "type": "incomplete_observations",
+                    "message": "Some required observations are missing.",
+                    "parameters": missing_parameters,
+                })
+
+        except (ValueError, TypeError) as exc:
+            issues.append({
+                "type": "invalid_observation_data",
+                "message": str(exc),
+            })
+
+        # Flag readings that have not completed quality validation.
+        if latest.quality_status == "pending":
+            issues.append({
+                "type": "validation_pending",
+                "message": "This reading has not completed quality validation.",
+            })
+
+        results.append({
+            "patient_id": patient.id,
+            "patient_code": patient.patient_code,
+            "latest_reading_at": latest.recorded_at,
+            "reading_age_minutes": timestamp_info["reading_age_minutes"],
+            "freshness_status": timestamp_info["freshness_status"],
+            "quality_status": latest.quality_status,
+            "missing_parameters": missing_parameters,
+            "issues": issues,
+        })
+
+    return {
+        "total_patients": len(results),
+        "patients_with_issues": sum(
+            1 for patient in results if patient["issues"]
+        ),
+        "patients": results,
+    }
 
 
 
